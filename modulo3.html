@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo 3: ACTIVIDAD DE CONTEXTUALIZACIÓN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ESTILOS GLOBALES ESTANDARIZADOS */
+        :root { 
+            --sena-green: #39A900; 
+            --sena-blue: #00324D; 
+            --sena-orange: #FF6C00; 
+            --bg-body: #F4F6F9; 
+            --bg-card: #FFFFFF; 
+            --text-gray: #59667a; 
+            --shadow: 0 4px 20px rgba(0,0,0,0.05); 
+            --radius: 12px; 
+            --menu-width: 280px; 
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            background-color: var(--bg-body); 
+            color: var(--sena-blue); 
+            line-height: 1.6; 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            position: relative;
+        }
+
+        /* FONDO / MARCA DE AGUA */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_1/imagenes/tesoro_pirata.png");
+            background-size: cover;
+            background-position: center;
+            opacity: 0.55; /* Visible y abarca toda la página */
+            z-index: -1;
+        }
+        
+        /* HEADER */
+        header { background-color: var(--bg-card); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 100; }
+        .back-btn { text-decoration: none; color: var(--sena-blue); font-weight: bold; display: flex; align-items: center; gap: 10px; transition: color 0.3s; }
+        .back-btn:hover { color: var(--sena-orange); }
+
+        /* LAYOUT */
+        .main-layout { display: flex; flex: 1; max-width: 1400px; margin: 2rem auto; gap: 2rem; width: 100%; padding: 0 20px; }
+        .sidebar { width: var(--menu-width); background: rgba(255, 255, 255, 0.95); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.5rem; height: fit-content; position: sticky; top: 2rem; }
+        .sidebar h3 { font-family: 'Montserrat'; color: var(--sena-green); margin-bottom: 1.5rem; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        
+        .menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; margin-bottom: 8px; border-radius: 8px; cursor: pointer; transition: all 0.3s; color: var(--text-gray); font-weight: 500; position: relative; }
+        .menu-item:hover { background: #f0fdf4; color: var(--sena-green); }
+        .menu-item.active { background: var(--sena-green); color: white; box-shadow: 0 4px 10px rgba(57, 169, 0, 0.3); }
+        .menu-item.completed::after { content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; right: 15px; color: var(--sena-green); }
+        .menu-item.active.completed::after { color: white; }
+
+        /* CONTENIDO */
+        .content-area { flex: 1; background: rgba(255, 255, 255, 0.95); border-radius: var(--radius); box-shadow: var(--shadow); padding: 2.5rem; min-height: 600px; }
+        .activity-section { display: none; animation: fadeIn 0.5s ease; }
+        .activity-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .section-header h2 { font-family: 'Montserrat'; color: var(--sena-blue); font-size: 1.8rem; margin-bottom: 1rem; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        
+        /* COMPONENTES DE INTERACCIÓN (VIDEO, FORMS, ETC) */
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: var(--radius); background: black; margin-bottom: 1.5rem; }
+        .video-container iframe, .video-container video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+        .form-group textarea, input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; }
+        
+        .btn-primary { background: var(--sena-orange); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: background 0.3s; display: inline-flex; align-items: center; gap: 10px; justify-content: center;}
+        .btn-primary:hover { background: #e65100; }
+        .btn-green { background: var(--sena-green); }
+        .btn-green:hover { background: #2e8b00; }
+
+        /* AREA DE CARGA (UPLOAD) */
+        input[type="file"] { display: none; }
+        .upload-label { display: inline-flex; align-items: center; gap: 10px; background: #e8f5e9; color: var(--sena-green); border: 2px dashed var(--sena-green); padding: 15px 30px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s; margin-top: 15px; }
+        .upload-label:hover { background: #c8e6c9; }
+
+        /* ESTILOS ESPECÍFICOS PARA ACTIVIDADES INTERACTIVAS */
+        /* Match Game / Apareamiento */
+        .match-container { display: flex; gap: 20px; justify-content: space-between; }
+        .match-col { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+        .match-card { padding: 15px; border: 2px solid #eee; border-radius: 8px; cursor: pointer; transition: all 0.2s; text-align: center; }
+        .match-card:hover { border-color: var(--sena-blue); background: #f0f8ff; }
+        .match-card.selected { border-color: var(--sena-orange); background: #fff3e0; }
+        .match-card.matched { border-color: var(--sena-green); background: #e8f5e9; pointer-events: none; opacity: 0.7; }
+        .match-card img { max-width: 100px; max-height: 100px; display: block; margin: 0 auto 5px; }
+
+        /* Quiz */
+        .quiz-option { background: #f9f9f9; padding: 10px; margin: 5px 0; border-radius: 5px; cursor: pointer; border: 1px solid #eee; }
+        .quiz-option:hover { background: #e0f7fa; }
+        .quiz-option.correct { background: #c8e6c9; border-color: #4caf50; }
+        .quiz-option.incorrect { background: #ffcdd2; border-color: #f44336; }
+
+        /* Flashcards */
+        .flashcard { perspective: 1000px; width: 100%; height: 200px; cursor: pointer; margin-bottom: 15px; }
+        .flashcard-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
+        .flashcard.flipped .flashcard-inner { transform: rotateY(180deg); }
+        .flashcard-front, .flashcard-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); padding: 20px; font-weight: bold; font-size: 1.2rem; }
+        .flashcard-front { background-color: #fff; color: var(--sena-blue); border: 2px solid var(--sena-blue); }
+        .flashcard-back { background-color: var(--sena-blue); color: white; transform: rotateY(180deg); }
+
+        /* AREA FINAL */
+        .finish-area { margin-top: 2rem; text-align: center; padding: 2rem; background: #e8f5e9; border: 2px dashed var(--sena-green); border-radius: var(--radius); display: none; }
+
+        @media (max-width: 768px) { .main-layout { flex-direction: column; } .sidebar { width: 100%; position: static; } .match-container { flex-direction: column; } }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="header-left">
+            <img src="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/imagenes/SENA_T.png" alt="SENA" style="height: 50px;" onerror="this.src='imagenes/sena.png'">
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Volver al Centro de Comando</a>
+        </div>
+        <img src="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/imagenes/TECNO_V.jpeg" alt="Tecnoacademia" style="height: 50px;" onerror="this.src='imagenes/tecnoacademia.jpeg'">
+    </header>
+
+    <div class="main-layout">
+        <!-- SIDEBAR GENERADA DINÁMICAMENTE -->
+        <aside class="sidebar">
+            <h3><i class="fas fa-list-ul"></i> Actividades</h3>
+            
+            <div id="menu-1" class="menu-item active" onclick="showSection(1)">
+                <i class="fas fa-book-open"></i> 1. Contextualización
+            </div>
+            
+            <div id="menu-final" class="finish-area" style="padding: 15px; margin-top: 20px; display: none;">
+                <p style="font-size:0.9rem; color:var(--sena-green); font-weight:bold; margin-bottom: 10px;">¡Módulo Completado!</p>
+                <button class="btn-primary" style="width:100%; justify-content:center; font-size:0.8rem;" onclick="finishModule()">Avanzar Siguiente Nivel</button>
+            </div>
+        </aside>
+
+        <main class="content-area">
+            <!-- SECCIÓN 1: ACTIVIDAD DE CONTEXTUALIZACIÓN -->
+            <section id="sec-1" class="activity-section active">
+                <div class="section-header">
+                    <h2><i class="fas fa-sitemap"></i> ACTIVIDAD DE CONTEXTUALIZACIÓN</h2>
+                    <p style="color: var(--text-gray); margin-bottom: 20px;"><strong>Tiempo estimado:</strong> 3 Horas</p>
+                </div>
+                
+                <!-- Descripción Breve -->
+                <p style="text-align: justify; margin-bottom: 20px;">
+                    En esta segunda actividad de esta misión tu facilitador se encargará de hacerte un recorrido por los diferentes tipos de biotecnologías basado en el anexo G2_Anexo 2. Biotecnología artística. Después vas con tu equipo de trabajo a consultar y presentar en una corta exposición el tipo de biotecnología que te correspondió. Al finalizar esta actividad se te otorgará la Insignia Oro.
+                </p>
+
+                <!-- RECOMPENSA E INSIGNIA -->
+                <div style="margin-bottom: 25px; display: flex; align-items: center; gap: 15px; background: #fff3e0; padding: 15px; border-radius: 8px; border: 1px solid var(--sena-orange);">
+                    <img src="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/imagenes/02 - Insignias MOHS-Oro.png" alt="Insignia Oro" style="width: 70px; height: auto;">
+                    <div>
+                        <h4 style="color: var(--sena-orange); margin-bottom: 5px; font-family: 'Montserrat';"><i class="fas fa-medal"></i> Recompensa de la Actividad</h4>
+                        <p style="font-size: 0.95rem; margin: 0; color: var(--text-gray);">Completa la lectura y realiza la carga de tu presentación para obtener la <strong>Insignia Oro</strong>.</p>
+                    </div>
+                </div>
+
+                <!-- ANEXO PDF -->
+                <div style="margin-bottom: 25px; padding: 15px; background: #e8f5e9; border-left: 5px solid var(--sena-green); border-radius: 4px;">
+                    <p style="margin-bottom: 10px; color: var(--sena-blue);"><strong><i class="fas fa-file-pdf"></i> Material de Apoyo:</strong> Consulta el anexo para preparar tu exposición.</p>
+                    <a href="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/documentos/G2_ANEXO2 .pdf" target="_blank" class="btn-primary btn-green" style="text-decoration: none; font-size: 0.9rem; padding: 8px 15px;">
+                        <i class="fas fa-download"></i> G2_Anexo2
+                    </a>
+                </div>
+
+                <!-- INFO COLORES BIOTECNOLOGÍA -->
+                <div style="background: #f4f6f9; padding: 25px; border-radius: var(--radius); margin-bottom: 25px; display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <h3 style="color: var(--sena-blue); margin-bottom: 15px; font-family: 'Montserrat';">Los colores de la Biotecnología</h3>
+                        <p style="text-align: justify;">Los colores de la biotecnología se utilizan para clasificar sus diferentes áreas según su aplicación. Por ejemplo, la biotecnología roja se enfoca en la salud y la medicina, la verde en la agricultura, la blanca en procesos industriales, la azul en recursos marinos y la gris en la protección del medio ambiente. Esta clasificación facilita comprender cómo la biotecnología contribuye a distintos sectores, siempre con el objetivo de mejorar la calidad de vida y promover un desarrollo sostenible.</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <img src="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/imagenes/Colores_Biotecnologia.jpeg" alt="Colores Biotecnología" style="max-width: 280px; border-radius: 8px; box-shadow: var(--shadow);">
+                    </div>
+                </div>
+
+                <!-- ÁREA DE CARGA DE EVIDENCIA -->
+                <div style="text-align: center; padding: 20px; border: 1px solid #eee; border-radius: var(--radius); background: white;">
+                    <h3 style="color: var(--sena-blue);"><i class="fas fa-upload"></i> Carga tu Presentación</h3>
+                    <p style="color: var(--text-gray); margin-top: 10px;">Sube aquí la diapositiva o imagen de la exposición de tu equipo para completar el módulo.</p>
+                    
+                    <label class="upload-label" for="file-upload">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 1.5rem;"></i> Seleccionar Archivo
+                    </label>
+                    <input type="file" id="file-upload" accept="image/*,.pdf,.ppt,.pptx" onchange="handleFileUpload(event)">
+                    
+                    <p id="upload-success" style="color: var(--sena-green); font-weight: bold; margin-top: 15px; display: none;">
+                        <i class="fas fa-check-circle"></i> ¡Evidencia cargada exitosamente! Has ganado la Insignia Oro.
+                    </p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // LÓGICA BASE OBLIGATORIA
+        let progress = [false]; // Una sola actividad (Carga de archivo)
+        let totalActivities = 1; 
+
+        function showSection(id) {
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('menu-' + id).classList.add('active');
+            document.querySelectorAll('.activity-section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById('sec-' + id).classList.add('active');
+        }
+
+        function markComplete(id) {
+            if (!progress[id-1]) {
+                progress[id-1] = true;
+                document.getElementById('menu-' + id).classList.add('completed');
+                checkAllComplete();
+            }
+        }
+
+        function checkAllComplete() {
+            if (progress.every(Boolean)) {
+                document.getElementById('menu-final').style.display = 'block';
+            }
+        }
+
+        function finishModule() {
+            const currentModule = 3; 
+            const nextModule = currentModule + 1;
+            
+            const savedState = localStorage.getItem('vexIqState');
+            if (savedState) {
+                const state = JSON.parse(savedState);
+                if (!state.completedModules.includes(currentModule)) state.completedModules.push(currentModule);
+                if (!state.unlockedModules.includes(nextModule)) state.unlockedModules.push(nextModule);
+                localStorage.setItem('vexIqState', JSON.stringify(state));
+                alert("¡Módulo Finalizado! Has ganado la Insignia Oro. Progreso Guardado.");
+                window.location.href = 'index.html';
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+
+        // --- FUNCIONES ESPECÍFICAS DE LAS ACTIVIDADES ---
+
+        // Actividad 1: Carga de Archivo
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // Al cargar un archivo exitosamente, mostramos el feedback y marcamos como completo.
+                document.getElementById('upload-success').style.display = 'block';
+                markComplete(1);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo 5: ACTIVIDADES DE TRASFERENCIA DEL CONOCIMIENTO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ESTILOS GLOBALES ESTANDARIZADOS */
+        :root { --sena-green: #39A900; --sena-blue: #00324D; --sena-orange: #FF6C00; --bg-body: #F4F6F9; --bg-card: #FFFFFF; --text-gray: #59667a; --shadow: 0 4px 20px rgba(0,0,0,0.05); --radius: 12px; --menu-width: 280px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; background-color: var(--bg-body); color: var(--sena-blue); line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; position: relative; }
+        
+        /* FONDO / MARCA DE AGUA */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_1/imagenes/Fondo_laboratorio.png");
+            background-size: cover;
+            background-position: center;
+            opacity: 0.65; /* No muy transparente */
+            z-index: -1;
+        }
+
+        /* HEADER */
+        header { background-color: var(--bg-card); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 100; }
+        .back-btn { text-decoration: none; color: var(--sena-blue); font-weight: bold; display: flex; align-items: center; gap: 10px; transition: color 0.3s; }
+        .back-btn:hover { color: var(--sena-orange); }
+
+        /* LAYOUT */
+        .main-layout { display: flex; flex: 1; max-width: 1400px; margin: 2rem auto; gap: 2rem; width: 100%; padding: 0 20px; }
+        .sidebar { width: var(--menu-width); background: rgba(255, 255, 255, 0.95); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.5rem; height: fit-content; position: sticky; top: 2rem; }
+        .sidebar h3 { font-family: 'Montserrat'; color: var(--sena-green); margin-bottom: 1.5rem; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        
+        .menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; margin-bottom: 8px; border-radius: 8px; cursor: pointer; transition: all 0.3s; color: var(--text-gray); font-weight: 500; position: relative; }
+        .menu-item:hover { background: #f0fdf4; color: var(--sena-green); }
+        .menu-item.active { background: var(--sena-green); color: white; box-shadow: 0 4px 10px rgba(57, 169, 0, 0.3); }
+        .menu-item.completed::after { content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; right: 15px; color: var(--sena-green); }
+        .menu-item.active.completed::after { color: white; }
+
+        /* CONTENIDO */
+        .content-area { flex: 1; background: rgba(255, 255, 255, 0.95); border-radius: var(--radius); box-shadow: var(--shadow); padding: 2.5rem; min-height: 600px; }
+        .activity-section { display: none; animation: fadeIn 0.5s ease; }
+        .activity-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .section-header h2 { font-family: 'Montserrat'; color: var(--sena-blue); font-size: 1.8rem; margin-bottom: 1rem; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        
+        /* COMPONENTES GENERALES */
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+        .form-group textarea, input[type="text"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; }
+        
+        .btn-primary { background: var(--sena-orange); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: background 0.3s; display: inline-flex; align-items: center; gap: 10px; justify-content: center;}
+        .btn-primary:hover { background: #e65100; }
+        .btn-green { background: var(--sena-green); }
+        .btn-green:hover { background: #2e8b00; }
+        .btn-blue { background: var(--sena-blue); }
+        .btn-blue:hover { background: #001f30; }
+
+        input[type="file"] { display: none; }
+        .upload-label { display: inline-flex; align-items: center; gap: 10px; background: #e8f5e9; color: var(--sena-green); border: 2px dashed var(--sena-green); padding: 15px 30px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s; margin: 15px 0; }
+        .upload-label:hover { background: #c8e6c9; }
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: var(--radius); background: black; margin-bottom: 1.5rem; }
+        .video-container iframe, .video-container video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+        /* ESTILOS ESPECÍFICOS PARA ACTIVIDADES INTERACTIVAS */
+        
+        /* 1. Ordenar Pasos (ADN) */
+        .step-container { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+        .step-item { background: #fff; border: 2px solid #ddd; padding: 15px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; font-weight: bold; transition: all 0.2s; }
+        .step-item:hover { border-color: var(--sena-blue); background: #f0f8ff; }
+        .step-item.selected { border-color: var(--sena-green); background: #e8f5e9; pointer-events: none; opacity: 0.8;}
+        .step-item.error { border-color: #e74c3c; background: #fdedec; animation: shake 0.4s; }
+        
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+
+        /* 2. Match Game (ADN Aplicaciones) */
+        .match-container { display: flex; gap: 20px; justify-content: space-between; margin: 20px 0; }
+        .match-col { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+        .match-card { padding: 15px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; transition: all 0.2s; text-align: center; background: white; font-weight: 500;}
+        .match-card:hover { border-color: var(--sena-blue); background: #f0f8ff; }
+        .match-card.selected { border-color: var(--sena-orange); background: #fff3e0; transform: scale(1.02); }
+        .match-card.matched { border-color: var(--sena-green); background: #e8f5e9; pointer-events: none; opacity: 0.6; color: var(--sena-green); }
+
+        /* 3. Simulador Electroforesis */
+        .electro-sim-container { background: #2c3e50; padding: 30px; border-radius: 12px; margin-bottom: 25px; text-align: center; color: white; border: 4px solid #34495e; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);}
+        .gel-box { width: 250px; height: 350px; background: rgba(52, 152, 219, 0.3); border: 3px solid #3498db; margin: 20px auto; position: relative; border-radius: 8px; overflow: hidden; }
+        .gel-well-container { display: flex; justify-content: space-around; padding-top: 15px; }
+        .gel-well { width: 30px; height: 10px; background: rgba(0,0,0,0.5); border-radius: 2px; }
+        .dna-band { width: 26px; height: 6px; background: #2ecc71; border-radius: 2px; position: absolute; box-shadow: 0 0 8px #2ecc71; opacity: 0; transition: top 3s ease, opacity 0.5s ease; }
+        .pole-label { font-weight: bold; font-size: 1.2rem; margin: 5px 0; }
+        .pole-neg { color: #e74c3c; }
+        .pole-pos { color: #2ecc71; }
+
+        /* 4. Simulador Micro:bit */
+        .microbit-sim { background: #2c3e50; padding: 30px; border-radius: 20px; text-align: center; margin-bottom: 25px; border: 4px solid #34495e; display: flex; flex-direction: column; align-items: center;}
+        .mb-board { width: 220px; height: 180px; background: #1a1a1a; border-radius: 10px 10px 30px 30px; position: relative; border-bottom: 15px solid #d4af37; box-shadow: 0 10px 20px rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; padding-bottom: 20px;}
+        .mb-led-matrix { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; background: #000; padding: 10px; border-radius: 5px;}
+        .mb-led { width: 12px; height: 12px; background: #333; border-radius: 2px; transition: background 0.2s;}
+        .mb-led.on { background: #e74c3c; box-shadow: 0 0 5px #e74c3c; }
+        .mb-button { position: absolute; width: 15px; height: 15px; border-radius: 50%; background: #fff; cursor: pointer; }
+        .mb-btn-a { left: 15px; top: 80px; }
+        .mb-btn-b { right: 15px; top: 80px; }
+        .temp-controls { margin-top: 20px; display: flex; gap: 15px; align-items: center; background: rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 8px;}
+
+        /* AREA FINAL */
+        .finish-area { margin-top: 2rem; text-align: center; padding: 2rem; background: #e8f5e9; border: 2px dashed var(--sena-green); border-radius: var(--radius); display: none; }
+
+        @media (max-width: 768px) { .main-layout { flex-direction: column; } .sidebar { width: 100%; position: static; } .match-container { flex-direction: column; } }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="header-left">
+            <img src="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/imagenes/SENA_T.png" alt="SENA" style="height: 50px;" onerror="this.src='imagenes/sena.png'">
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Volver al Centro de Comando</a>
+        </div>
+        <img src="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/imagenes/TECNO_V.jpeg" alt="Tecnoacademia" style="height: 50px;" onerror="this.src='imagenes/tecnoacademia.jpeg'">
+    </header>
+
+    <div class="main-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <h3><i class="fas fa-list-ul"></i> Actividades</h3>
+            
+            <div id="menu-1" class="menu-item active" onclick="showSection(1)">
+                <i class="fas fa-info-circle"></i> 1. Introducción
+            </div>
+            <div id="menu-2" class="menu-item" onclick="showSection(2)">
+                <i class="fas fa-dna"></i> 2. Extracción de ADN
+            </div>
+            <div id="menu-3" class="menu-item" onclick="showSection(3)">
+                <i class="fas fa-bolt"></i> 3. Electroforesis
+            </div>
+            <div id="menu-4" class="menu-item" onclick="showSection(4)">
+                <i class="fas fa-microscope"></i> 4. Microscopía
+            </div>
+            <div id="menu-5" class="menu-item" onclick="showSection(5)">
+                <i class="fas fa-microchip"></i> 5. Sensando con Micro:bit
+            </div>
+            
+            <div id="menu-final" class="finish-area" style="padding: 15px; margin-top: 20px;">
+                <p style="font-size:0.9rem; color:var(--sena-green); font-weight:bold; margin-bottom: 10px;">¡Módulo Completado!</p>
+                <button class="btn-primary" style="width:100%; justify-content:center; font-size:0.8rem;" onclick="finishModule()">Avanzar Siguiente Nivel</button>
+            </div>
+        </aside>
+
+        <main class="content-area">
+            
+            <!-- SECCIÓN 1: INTRODUCCIÓN -->
+            <section id="sec-1" class="activity-section active">
+                <div class="section-header">
+                    <h2><i class="fas fa-globe-americas"></i> ACTIVIDADES DE TRANSFERENCIA</h2>
+                    <p style="color: var(--text-gray); margin-bottom: 20px;"><strong>Tiempo estimado:</strong> 16 horas presenciales y 4 de trabajo autónomo.</p>
+                </div>
+                
+                <div style="display: flex; gap: 30px; margin-bottom: 30px; align-items: flex-start; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 300px; text-align: justify;">
+                        <p style="margin-bottom: 15px; font-size: 1.05rem;">
+                            La biotecnología puede cambiar nuestro mundo, resolver problemáticas de hambruna, producir alimentos más nutritivos y grandes. En esta sesión aprenderás sobre las aplicaciones de la biotecnología y cómo los <strong>Organismos Genéticamente Modificados (OMG)</strong>, están cambiando nuestras sociedades.
+                        </p>
+                        
+                        <!-- Mensaje de Bioseguridad -->
+                        <div style="background: #fff3e0; border-left: 5px solid var(--sena-orange); padding: 15px; border-radius: 4px; margin-top: 20px;">
+                            <h4 style="color: var(--sena-orange); margin-bottom: 10px;"><i class="fas fa-exclamation-triangle"></i> ¡Apreciado MAKER!</h4>
+                            <p style="font-size: 0.95rem;">Recuerda aplicar el protocolo de limpieza y desinfección establecido en el Manual de Bioseguridad de la Tecnoacademia, el cual será socializado por tu facilitador, al igual que cumplir el protocolo de bioseguridad contenido en los anexos de esta guía, así aportarás al desarrollo seguro de las formaciones.</p>
+                            
+                            <a href="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_1/documentos/MANUAL DE BIOSEGURIDAD LABORATORIOS TALLERES TECNOACADEMIA MANIZALES V2.0 (1).pdf" target="_blank" class="btn-primary" style="margin-top: 15px; font-size: 0.85rem; padding: 8px 15px;">
+                                <i class="fas fa-file-pdf"></i> Manual de Bioseguridad
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 15px; align-items: center;">
+                        <img src="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_1/imagenes/Dani Pasteur.png" alt="Dani Pasteur" style="width: 150px; border-radius: 12px; box-shadow: var(--shadow);">
+                        <img src="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_1/imagenes/CellEste.png" alt="CellEste" style="width: 150px; border-radius: 12px; box-shadow: var(--shadow);">
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn-primary btn-green" onclick="completeSection(1, 2)"><i class="fas fa-check"></i> Comprendido, iniciar Bloque A</button>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 2: EXTRACCIÓN DE ADN -->
+            <section id="sec-2" class="activity-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-dna"></i> BLOQUE A: EL ADN Y SU UTILIDAD EN LA BIOTECNOLOGÍA</h2>
+                    <h4 style="color: var(--sena-green);">EXTRACCIÓN DE ÁCIDOS NUCLEICOS</h4>
+                </div>
+
+                <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 25px;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <p style="text-align: justify; margin-bottom: 15px;">
+                            Para cualquier aplicación biotecnológica que requiera manipulación genética, el primer paso fundamental es aislar el material genético. <strong>La extracción de ADN</strong> consiste en liberar el ADN del interior de las células y separarlo de otras moléculas como proteínas y lípidos. Los principios básicos incluyen la ruptura celular (lisis), la purificación y la precipitación del ADN para poder visualizarlo y utilizarlo. Este proceso varía ligeramente dependiendo si son células animales, vegetales o levaduras.
+                        </p>
+                        <div style="display: flex; gap: 10px;">
+                            <a href="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/documentos/G2_Anexo 9.1.pdf" target="_blank" class="btn-primary btn-blue" style="font-size: 0.8rem;"><i class="fas fa-file-pdf"></i> Anexo 9.1</a>
+                            <a href="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/documentos/G2_Anexo 9.2.pdf" target="_blank" class="btn-primary btn-blue" style="font-size: 0.8rem;"><i class="fas fa-file-pdf"></i> Anexo 9.2</a>
+                        </div>
+                    </div>
+                    <div style="text-align: center;">
+                        <img src="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/imagenes/Extraccion ADN.png" alt="Extracción ADN" style="max-width: 250px; border-radius: var(--radius); box-shadow: var(--shadow);">
+                    </div>
+                </div>
+
+                <!-- Actividad 1: Ordenar pasos -->
+                <div style="background: #fff; padding: 25px; border-radius: var(--radius); border: 1px solid #ddd; margin-bottom: 30px;">
+                    <h3 style="color: var(--sena-blue);"><i class="fas fa-sort-numeric-down"></i> Reto 1: El Orden Correcto</h3>
+                    <p style="color: var(--text-gray); margin-bottom: 15px;">Haz clic sobre los pasos de extracción de ADN en el orden lógico en que deben ocurrir (1 al 4).</p>
+                    
+                    <div class="step-container" id="adn-steps-container">
+                        <div class="step-item" data-order="3" onclick="checkStepOrder(this)"><span>Purificación (Separar proteínas/lípidos)</span> <i class="fas fa-circle" style="color:#eee;"></i></div>
+                        <div class="step-item" data-order="1" onclick="checkStepOrder(this)"><span>Lisis Celular (Romper membrana celular)</span> <i class="fas fa-circle" style="color:#eee;"></i></div>
+                        <div class="step-item" data-order="4" onclick="checkStepOrder(this)"><span>Precipitación (Usar alcohol para visualizar el ADN)</span> <i class="fas fa-circle" style="color:#eee;"></i></div>
+                        <div class="step-item" data-order="2" onclick="checkStepOrder(this)"><span>Lisis Nuclear (Liberar ADN del núcleo)</span> <i class="fas fa-circle" style="color:#eee;"></i></div>
+                    </div>
+                    <p id="step-success" style="color: var(--sena-green); font-weight: bold; display: none;"><i class="fas fa-check-circle"></i> ¡Excelente! Has ordenado el protocolo correctamente.</p>
+                </div>
+
+                <!-- Actividad 2: Match Aplicaciones -->
+                <div style="background: #fff; padding: 25px; border-radius: var(--radius); border: 1px solid #ddd; margin-bottom: 30px;">
+                    <h3 style="color: var(--sena-blue);"><i class="fas fa-random"></i> Reto 2: Aplicaciones del ADN</h3>
+                    <p style="color: var(--text-gray); margin-bottom: 15px;">Empareja el área de la ciencia con el uso práctico que se le da al ADN extraído.</p>
+                    
+                    <div class="match-container">
+                        <div class="match-col" id="col-words-adn">
+                            <div class="match-card word-card-adn" data-match="1" onclick="selectCardADN(this, 'word')">Medicina / Salud</div>
+                            <div class="match-card word-card-adn" data-match="2" onclick="selectCardADN(this, 'word')">Agricultura</div>
+                            <div class="match-card word-card-adn" data-match="3" onclick="selectCardADN(this, 'word')">Ciencias Forenses</div>
+                        </div>
+                        <div class="match-col" id="col-defs-adn">
+                            <div class="match-card def-card-adn" data-match="3" onclick="selectCardADN(this, 'def')">Identificación de sospechosos mediante huella genética.</div>
+                            <div class="match-card def-card-adn" data-match="1" onclick="selectCardADN(this, 'def')">Detección de enfermedades genéticas o creación de vacunas.</div>
+                            <div class="match-card def-card-adn" data-match="2" onclick="selectCardADN(this, 'def')">Creación de plantas resistentes a plagas (OMG).</div>
+                        </div>
+                    </div>
+                    <p id="match-adn-success" style="color: var(--sena-green); font-weight: bold; text-align: center; display: none;"><i class="fas fa-check-circle"></i> ¡Conceptos emparejados correctamente!</p>
+                </div>
+
+                <!-- Formulario de Reflexión -->
+                <div style="background: #f4f6f9; padding: 25px; border-radius: var(--radius);">
+                    <h3 style="color: var(--sena-blue); margin-bottom: 15px;"><i class="fas fa-pen-nib"></i> Reflexión del Bloque</h3>
+                    <div class="form-group">
+                        <label>1. ¿Por qué es fundamental la extracción de ADN como primer paso en muchos procesos biotecnológicos?</label>
+                        <textarea id="ref-adn-1" rows="2" placeholder="Tu respuesta..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>2. ¿Qué papel juegan microorganismos como las levaduras cuando analizamos o modificamos su ADN?</label>
+                        <textarea id="ref-adn-2" rows="2" placeholder="Tu respuesta..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>3. ¿Cómo impacta la calidad del ADN extraído en los resultados de una investigación?</label>
+                        <textarea id="ref-adn-3" rows="2" placeholder="Tu respuesta..."></textarea>
+                    </div>
+                    <button class="btn-primary" onclick="submitBlockA()"><i class="fas fa-save"></i> Guardar Reflexiones y Avanzar</button>
+                    <p id="ref-adn-success" style="color: var(--sena-green); font-weight: bold; margin-top: 10px; display: none;">¡Sección superada!</p>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 3: ELECTROFORESIS -->
+            <section id="sec-3" class="activity-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-bolt"></i> BLOQUE B: ELECTROFORESIS</h2>
+                    <h4 style="color: var(--sena-green);">SIGUIENDO EL RASTRO DEL ADN</h4>
+                </div>
+
+                <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 25px;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <p style="text-align: justify; margin-bottom: 15px;">
+                            Una vez extraído el ADN, muchas veces necesitamos separar y visualizar sus fragmentos según su tamaño. Para esto usamos la <strong>Electroforesis en gel</strong>. Aprovechando que el ADN tiene una carga eléctrica negativa, se aplica una corriente eléctrica que obliga al ADN a viajar a través de un gel poroso hacia el polo positivo (ánodo). Los fragmentos más pequeños viajan más rápido y llegan más lejos que los grandes.
+                        </p>
+                        <a href="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/imagenes/Electroforesis.png" target="_blank" class="btn-primary btn-blue" style="font-size: 0.8rem;"><i class="fas fa-image"></i> Ver Esquema de Electroforesis</a>
+                    </div>
+                    <div style="text-align: center;">
+                        <img src="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/imagenes/Electroforesis.png" alt="Electroforesis" style="max-width: 250px; border-radius: var(--radius); box-shadow: var(--shadow);">
+                    </div>
+                </div>
+
+                <!-- Simulador Electroforesis -->
+                <div class="electro-sim-container">
+                    <h3 style="margin-bottom: 10px;"><i class="fas fa-gamepad"></i> Simulador de Electroforesis</h3>
+                    <p style="font-size: 0.9rem; margin-bottom: 20px; color: #bdc3c7;">Instrucciones: El ADN está cargado negativamente. Enciende la fuente de poder para observar cómo migran las bandas de ADN hacia el polo positivo a través del gel.</p>
+                    
+                    <div class="pole-label pole-neg"><i class="fas fa-minus-circle"></i> Cátodo (-)</div>
+                    
+                    <div class="gel-box" id="gel-box">
+                        <div class="gel-well-container">
+                            <div class="gel-well"></div>
+                            <div class="gel-well"></div>
+                            <div class="gel-well"></div>
+                            <div class="gel-well"></div>
+                        </div>
+                        <!-- Bandas generadas por JS -->
+                    </div>
+                    
+                    <div class="pole-label pole-pos"><i class="fas fa-plus-circle"></i> Ánodo (+)</div>
+                    
+                    <button class="btn-primary btn-green" id="btn-power-gel" style="margin-top: 20px;" onclick="runGel()"><i class="fas fa-power-off"></i> Encender Fuente de Poder</button>
+                    <p id="gel-success-msg" style="color: #2ecc71; font-weight: bold; margin-top: 15px; display: none;">¡Observa cómo los fragmentos pequeños (bandas inferiores) viajan más rápido y lejos!</p>
+                </div>
+
+                <!-- Formulario de Reflexión -->
+                <div style="background: #f4f6f9; padding: 25px; border-radius: var(--radius); margin-bottom: 25px;">
+                    <h3 style="color: var(--sena-blue); margin-bottom: 15px;"><i class="fas fa-pen-nib"></i> Reflexión del Bloque</h3>
+                    <div class="form-group">
+                        <label>1. ¿En qué principio físico-químico se basa la separación de fragmentos de ADN durante la electroforesis?</label>
+                        <textarea id="ref-elec-1" rows="2" placeholder="Tu respuesta..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>2. ¿Por qué el ADN migra hacia el polo positivo (ánodo) en la cámara de electroforesis?</label>
+                        <textarea id="ref-elec-2" rows="2" placeholder="Tu respuesta..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>3. ¿Qué aplicaciones prácticas tiene visualizar el tamaño de los fragmentos de ADN?</label>
+                        <textarea id="ref-elec-3" rows="2" placeholder="Tu respuesta..."></textarea>
+                    </div>
+                </div>
+
+                <div style="text-align: center; padding: 20px; background: #e8f5e9; border-radius: var(--radius); border: 2px dashed var(--sena-green);">
+                    <h3 style="color: var(--sena-green);"><i class="fas fa-file-upload"></i> Carga de Informe de Laboratorio</h3>
+                    <p style="color: var(--text-gray); margin-top: 10px;">Adjunta el informe o evidencia de la práctica de Electroforesis (PDF, Word, Imagen).</p>
+                    <label class="upload-label" for="lab-electro-upload">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 1.5rem;"></i> Subir Informe
+                    </label>
+                    <input type="file" id="lab-electro-upload" onchange="completeBlockB(event)">
+                    <p id="upload-electro-success" style="color: var(--sena-green); font-weight: bold; margin-top: 10px; display: none;"><i class="fas fa-check"></i> ¡Informe cargado y reflexiones guardadas! Sección superada.</p>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 4: MICROSCOPÍA (NUEVO BLOQUE) -->
+            <section id="sec-4" class="activity-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-microscope"></i> BLOQUE C: EL MICROSCOPIO Y EL UNIVERSO INVISIBLE</h2>
+                </div>
+
+                <p style="text-align: justify; margin-bottom: 15px;">
+                    El <strong>microscopio</strong> es uno de los instrumentos más revolucionarios en la historia de la ciencia. Su invención nos permitió descubrir un universo hasta entonces invisible: el mundo de los microorganismos y las células. En la <strong>biotecnología</strong>, el microscopio es una herramienta fundamental que nos permite observar bacterias, levaduras, células animales y vegetales, estudiar su comportamiento, estructura y cómo interactúan. Gracias a la microscopía, la humanidad ha logrado grandes avances en la medicina, el desarrollo de vacunas, la mejora de cultivos y la comprensión de las bases mismas de la vida.
+                </p>
+
+                <a href="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/documentos/G2_ANEXO11.pdf" target="_blank" class="btn-primary btn-blue" style="font-size: 0.8rem; margin-bottom: 25px;"><i class="fas fa-file-pdf"></i> G2_ANEXO11 (Material de Apoyo)</a>
+
+                <!-- Video -->
+                <div class="video-container">
+                    <video controls>
+                        <source src="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/videos/Al Ver Lo Invisible Leeuwenhoek y el descubrimiento de un mundo microscópico.mp4" type="video/mp4">
+                        Tu navegador no soporta el elemento de video.
+                    </video>
+                </div>
+
+                <!-- Preguntas sobre el video -->
+                <div style="background: #f4f6f9; padding: 25px; border-radius: var(--radius); margin-bottom: 25px;">
+                    <h3 style="color: var(--sena-blue); margin-bottom: 15px;"><i class="fas fa-question-circle"></i> Conceptos del Video</h3>
+                    <div class="form-group">
+                        <label>1. Según el video, ¿quién fue pionero en la observación del mundo microscópico?</label>
+                        <input type="text" id="vid-mic-1" placeholder="Escribe tu respuesta aquí...">
+                    </div>
+                    <div class="form-group">
+                        <label>2. ¿Qué impacto tuvo el microscopio en el desarrollo de la ciencia y la biología?</label>
+                        <input type="text" id="vid-mic-2" placeholder="Escribe tu respuesta aquí...">
+                    </div>
+                    <div class="form-group">
+                        <label>3. En la biotecnología actual, ¿por qué es indispensable el uso del microscopio?</label>
+                        <input type="text" id="vid-mic-3" placeholder="Escribe tu respuesta aquí...">
+                    </div>
+                </div>
+
+                <!-- Actividad Interactiva Microscopio -->
+                <div style="background: #fff; border: 2px solid #ddd; padding: 25px; border-radius: var(--radius); margin-bottom: 25px;">
+                    <h3 style="color: var(--sena-blue); margin-bottom: 15px;"><i class="fas fa-search-plus"></i> Identificando las Partes del Microscopio</h3>
+                    <p style="margin-bottom: 20px; color: var(--text-gray);">Instrucciones: Observa el microscopio a la izquierda y selecciona en los menús desplegables el nombre correcto para cada parte funcional descrita. Al acertar, se revelará el mapa completo.</p>
+                    
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: center;">
+                        <div style="flex: 1; min-width: 250px; text-align: center;">
+                            <img src="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/imagenes/microscopio_1.png" alt="Microscopio sin partes" style="max-width: 100%; border-radius: 8px; box-shadow: var(--shadow);">
+                        </div>
+                        <div style="flex: 1; min-width: 300px;">
+                            <div class="form-group">
+                                <label>Lente por donde observas la muestra:</label>
+                                <select id="part-1" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-family: inherit;">
+                                    <option value="">Selecciona una opción...</option>
+                                    <option value="platina">Platina</option>
+                                    <option value="ocular">Ocular</option>
+                                    <option value="foco">Fuente de luz</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Lentes intercambiables más cercanos a la muestra:</label>
+                                <select id="part-2" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-family: inherit;">
+                                    <option value="">Selecciona una opción...</option>
+                                    <option value="objetivos">Objetivos</option>
+                                    <option value="macrometrico">T. Macrométrico</option>
+                                    <option value="brazo">Brazo</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Superficie plana donde se coloca la placa con la muestra:</label>
+                                <select id="part-3" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-family: inherit;">
+                                    <option value="">Selecciona una opción...</option>
+                                    <option value="revolver">Revólver</option>
+                                    <option value="platina">Platina</option>
+                                    <option value="base">Base</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Tornillo para realizar el enfoque rápido/grueso:</label>
+                                <select id="part-4" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-family: inherit;">
+                                    <option value="">Selecciona una opción...</option>
+                                    <option value="macrometrico">Tornillo Macrométrico</option>
+                                    <option value="micrometrico">Tornillo Micrométrico</option>
+                                    <option value="ocular">Ocular</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Provee la iluminación necesaria para observar:</label>
+                                <select id="part-5" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-family: inherit;">
+                                    <option value="">Selecciona una opción...</option>
+                                    <option value="platina">Platina</option>
+                                    <option value="objetivos">Objetivos</option>
+                                    <option value="foco">Fuente de luz</option>
+                                </select>
+                            </div>
+                            <button class="btn-primary" onclick="verifyMicroscopeParts()"><i class="fas fa-check"></i> Verificar Partes</button>
+                            <p id="micro-parts-error" style="color: #e74c3c; margin-top: 10px; display: none; font-weight: bold;"><i class="fas fa-times-circle"></i> Algunas partes son incorrectas, revisa e intenta de nuevo.</p>
+                        </div>
+                    </div>
+
+                    <!-- Feedback Labeled Image -->
+                    <div id="micro-parts-success" style="display: none; text-align: center; margin-top: 25px; animation: fadeIn 1s ease;">
+                        <h4 style="color: var(--sena-green); margin-bottom: 15px;"><i class="fas fa-check-circle"></i> ¡Excelente! Has identificado correctamente las partes principales.</h4>
+                        <img src="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/imagenes/microscopio_2.png" alt="Microscopio con partes" style="max-width: 100%; border-radius: 8px; box-shadow: var(--shadow);">
+                    </div>
+                </div>
+
+                <!-- Formulario Reflexión Final y Subida -->
+                <div style="background: #f4f6f9; padding: 25px; border-radius: var(--radius); margin-bottom: 25px;">
+                    <h3 style="color: var(--sena-blue); margin-bottom: 15px;"><i class="fas fa-pen-nib"></i> Reflexión del Bloque</h3>
+                    <div class="form-group">
+                        <label>1. ¿De qué manera el uso del microscopio ha impulsado los descubrimientos en el campo de la biotecnología?</label>
+                        <textarea id="ref-micro-1" rows="2" placeholder="Tu respuesta..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>2. ¿Por qué es fundamental conocer las partes y el manejo adecuado del microscopio antes de realizar una práctica de laboratorio?</label>
+                        <textarea id="ref-micro-2" rows="2" placeholder="Tu respuesta..."></textarea>
+                    </div>
+                </div>
+
+                <div style="text-align: center; padding: 20px; background: #e8f5e9; border-radius: var(--radius); border: 2px dashed var(--sena-green);">
+                    <h3 style="color: var(--sena-green);"><i class="fas fa-file-upload"></i> Carga de Informe de Microscopía</h3>
+                    <p style="color: var(--text-gray); margin-top: 10px;">Adjunta el informe o evidencia de tu práctica de microscopía (PDF, Word, Imagen).</p>
+                    <label class="upload-label" for="lab-micro-upload">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 1.5rem;"></i> Subir Informe
+                    </label>
+                    <input type="file" id="lab-micro-upload" onchange="completeBlockC(event)">
+                    <p id="upload-micro-success" style="color: var(--sena-green); font-weight: bold; margin-top: 10px; display: none;"><i class="fas fa-check"></i> ¡Informe cargado y reflexiones guardadas! Sección superada.</p>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 5: MICRO:BIT -->
+            <section id="sec-5" class="activity-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-microchip"></i> BLOQUE D: BIOTECNOLOGIANDO CON MICRO:BIT</h2>
+                    <h4 style="color: var(--sena-green);">SENSANDO CON MICROBIT</h4>
+                </div>
+
+                <p style="text-align: justify; margin-bottom: 15px;">
+                    La biotecnología moderna no solo depende de la biología y la química, sino también de la tecnología y la ingeniería. La <strong>sensórica</strong> permite monitorear variables críticas (como temperatura, pH, humedad) en biorreactores o cultivos celulares. La programación de tarjetas como la <strong>Micro:bit</strong> facilita la lectura y automatización de estos datos de manera sencilla y didáctica, contribuyendo al control preciso de los procesos biotecnológicos.
+                </p>
+                <a href="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/documentos/G2_ ANEXO 12.pdf" target="_blank" class="btn-primary btn-blue" style="font-size: 0.8rem; margin-bottom: 25px;"><i class="fas fa-file-pdf"></i> G2_ ANEXO 12</a>
+
+                <!-- Simulador Micro:bit -->
+                <div class="microbit-sim">
+                    <h3 style="margin-bottom: 10px; color: #f1c40f;"><i class="fas fa-thermometer-half"></i> Simulador de Temperatura Micro:bit</h3>
+                    <p style="font-size: 0.9rem; margin-bottom: 20px; color: #bdc3c7;">Instrucciones: Utiliza los controles para simular la temperatura ambiental de un cultivo. Si la temperatura supera los 30°C, la matriz mostrará una alerta de calor (Cuadro lleno), de lo contrario mostrará un punto (Normal).</p>
+                    
+                    <div class="mb-board">
+                        <div class="mb-button mb-btn-a" onclick="alert('Botón A de Micro:bit')"></div>
+                        <div class="mb-led-matrix" id="mb-matrix">
+                            <!-- 25 LEDs (5x5) -->
+                            <div class="mb-led"></div><div class="mb-led"></div><div class="mb-led"></div><div class="mb-led"></div><div class="mb-led"></div>
+                            <div class="mb-led"></div><div class="mb-led"></div><div class="mb-led"></div><div class="mb-led"></div><div class="mb-led"></div>
+                            <div class="mb-led"></div><div class="mb-led"></div><div class="mb-led"></div><div class="mb-led"></div><div class="mb-led"></div>
+                            <div class="mb-led"></div><div class="mb-led"></div><div class="mb-led"></div><div class="mb-led"></div><div class="mb-led"></div>
+                            <div class="mb-led"></div><div class="mb-led"></div><div class="mb-led"></div><div class="mb-led"></div><div class="mb-led"></div>
+                        </div>
+                        <div class="mb-button mb-btn-b" onclick="alert('Botón B de Micro:bit')"></div>
+                    </div>
+
+                    <div class="temp-controls">
+                        <button class="btn-primary btn-blue" onclick="changeTemp(-1)"><i class="fas fa-minus"></i> Enfriar</button>
+                        <span style="font-size: 1.5rem; font-weight: bold; width: 80px;" id="sim-temp">25°C</span>
+                        <button class="btn-primary" style="background: #e74c3c;" onclick="changeTemp(1)"><i class="fas fa-fire"></i> Calentar</button>
+                    </div>
+                </div>
+
+                <!-- Formulario de Reflexión -->
+                <div style="background: #f4f6f9; padding: 25px; border-radius: var(--radius); margin-bottom: 25px;">
+                    <h3 style="color: var(--sena-blue); margin-bottom: 15px;"><i class="fas fa-pen-nib"></i> Reflexión del Bloque</h3>
+                    <div class="form-group">
+                        <label>1. ¿De qué manera la medición de variables físicas (como la temperatura) mejora los procesos biotecnológicos?</label>
+                        <textarea id="ref-mb-1" rows="2" placeholder="Tu respuesta..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>2. ¿Qué ventajas ofrece el uso de tarjetas programables como Micro:bit para automatizar mediciones?</label>
+                        <textarea id="ref-mb-2" rows="2" placeholder="Tu respuesta..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>3. ¿Cómo aplicarías un sensor de temperatura en un cultivo de bacterias o levaduras?</label>
+                        <textarea id="ref-mb-3" rows="2" placeholder="Tu respuesta..."></textarea>
+                    </div>
+                </div>
+
+                <div style="text-align: center; padding: 20px; background: #e8f5e9; border-radius: var(--radius); border: 2px dashed var(--sena-green);">
+                    <h3 style="color: var(--sena-green);"><i class="fas fa-file-upload"></i> Carga de Informe Sensórica</h3>
+                    <p style="color: var(--text-gray); margin-top: 10px;">Adjunta la evidencia de tu práctica con Micro:bit (PDF, Word, Imagen).</p>
+                    <label class="upload-label" for="lab-mb-upload">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 1.5rem;"></i> Subir Informe
+                    </label>
+                    <input type="file" id="lab-mb-upload" onchange="completeBlockD(event)">
+                    <p id="upload-mb-success" style="color: var(--sena-green); font-weight: bold; margin-top: 10px; display: none;"><i class="fas fa-check"></i> ¡Informe cargado y reflexiones guardadas! Sección superada.</p>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        // LÓGICA BASE OBLIGATORIA
+        // [0] = Intro, [1] = ADN, [2] = Electroforesis, [3] = Microscopia, [4] = Microbit
+        let progress = [false, false, false, false, false]; 
+        
+        function showSection(id) {
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('menu-' + id).classList.add('active');
+            document.querySelectorAll('.activity-section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById('sec-' + id).classList.add('active');
+        }
+
+        function checkModuleCompletion() {
+            if(progress[0]) document.getElementById('menu-1').classList.add('completed');
+            if(progress[1]) document.getElementById('menu-2').classList.add('completed');
+            if(progress[2]) document.getElementById('menu-3').classList.add('completed');
+            if(progress[3]) document.getElementById('menu-4').classList.add('completed');
+            if(progress[4]) document.getElementById('menu-5').classList.add('completed');
+
+            if (progress.every(Boolean)) {
+                document.getElementById('menu-final').style.display = 'block';
+            }
+        }
+
+        function finishModule() {
+            const currentModule = 5; 
+            const nextModule = currentModule + 1;
+            
+            const savedState = localStorage.getItem('vexIqState');
+            if (savedState) {
+                const state = JSON.parse(savedState);
+                if (!state.completedModules.includes(currentModule)) state.completedModules.push(currentModule);
+                if (!state.unlockedModules.includes(nextModule)) state.unlockedModules.push(nextModule);
+                localStorage.setItem('vexIqState', JSON.stringify(state));
+                alert("¡Módulo Finalizado Exitosamente! Progreso Guardado.");
+                window.location.href = 'index.html';
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+
+        function completeSection(idx, nextIdx) {
+            progress[idx-1] = true;
+            checkModuleCompletion();
+            if(nextIdx) showSection(nextIdx);
+        }
+
+        // --- FUNCIONES SECCIÓN 2: ADN ---
+        // Reto 1: Orden
+        let currentExpectedOrder = 1;
+        function checkStepOrder(element) {
+            const clickedOrder = parseInt(element.getAttribute('data-order'));
+            if (element.classList.contains('selected')) return;
+
+            if (clickedOrder === currentExpectedOrder) {
+                element.classList.add('selected');
+                element.querySelector('i').className = "fas fa-check-circle";
+                element.querySelector('i').style.color = "var(--sena-green)";
+                currentExpectedOrder++;
+                
+                if (currentExpectedOrder > 4) {
+                    document.getElementById('step-success').style.display = 'block';
+                }
+            } else {
+                element.classList.add('error');
+                setTimeout(() => element.classList.remove('error'), 400);
+            }
+        }
+
+        // Reto 2: Match
+        let selWordADN = null;
+        let selDefADN = null;
+        let matchesFoundADN = 0;
+
+        function selectCardADN(card, type) {
+            if (card.classList.contains('matched')) return;
+
+            if (type === 'word') {
+                if (selWordADN) selWordADN.classList.remove('selected');
+                selWordADN = card;
+                selWordADN.classList.add('selected');
+            } else {
+                if (selDefADN) selDefADN.classList.remove('selected');
+                selDefADN = card;
+                selDefADN.classList.add('selected');
+            }
+
+            if (selWordADN && selDefADN) {
+                if (selWordADN.dataset.match === selDefADN.dataset.match) {
+                    selWordADN.classList.remove('selected');
+                    selDefADN.classList.remove('selected');
+                    selWordADN.classList.add('matched');
+                    selDefADN.classList.add('matched');
+                    matchesFoundADN++;
+                    selWordADN = null;
+                    selDefADN = null;
+
+                    if (matchesFoundADN === 3) {
+                        document.getElementById('match-adn-success').style.display = 'block';
+                    }
+                } else {
+                    setTimeout(() => {
+                        selWordADN.classList.remove('selected');
+                        selDefADN.classList.remove('selected');
+                        selWordADN = null;
+                        selDefADN = null;
+                    }, 400);
+                }
+            }
+        }
+
+        function submitBlockA() {
+            const r1 = document.getElementById('ref-adn-1').value.trim();
+            const r2 = document.getElementById('ref-adn-2').value.trim();
+            const r3 = document.getElementById('ref-adn-3').value.trim();
+            
+            if(r1.length < 5 || r2.length < 5 || r3.length < 5) {
+                alert("Por favor, responde todas las preguntas de reflexión.");
+                return;
+            }
+            if(currentExpectedOrder <= 4 || matchesFoundADN < 3) {
+                alert("Debes completar las actividades interactivas (Reto 1 y Reto 2) antes de continuar.");
+                return;
+            }
+
+            document.getElementById('ref-adn-success').style.display = 'block';
+            completeSection(2, 3);
+        }
+
+        // --- FUNCIONES SECCIÓN 3: ELECTROFORESIS ---
+        let gelRun = false;
+        function setupGel() {
+            const gelBox = document.getElementById('gel-box');
+            // Crear 4 carriles de bandas con diferentes distancias (pesos moleculares)
+            const lanes = [
+                [{top: '15%', speed: 1}, {top: '40%', speed: 2.5}, {top: '75%', speed: 4.5}],
+                [{top: '20%', speed: 1.2}, {top: '60%', speed: 3.5}],
+                [{top: '30%', speed: 1.8}, {top: '50%', speed: 3}, {top: '85%', speed: 5}],
+                [{top: '25%', speed: 1.5}, {top: '65%', speed: 3.8}]
+            ];
+
+            lanes.forEach((lane, idx) => {
+                let leftPos = 27 + (idx * 56); // Calcular posición horizontal según el carril
+                lane.forEach(band => {
+                    let b = document.createElement('div');
+                    b.className = 'dna-band';
+                    b.style.left = `${leftPos}px`;
+                    b.style.top = '30px'; // Posición inicial (pozo)
+                    b.dataset.targetTop = band.top;
+                    b.dataset.speed = band.speed;
+                    gelBox.appendChild(b);
+                });
+            });
+        }
+        setupGel();
+
+        function runGel() {
+            if(gelRun) return;
+            gelRun = true;
+            document.getElementById('btn-power-gel').style.background = "#95a5a6";
+            document.getElementById('btn-power-gel').innerHTML = "<i class='fas fa-cog fa-spin'></i> Proceso en curso...";
+            
+            const bands = document.querySelectorAll('.dna-band');
+            bands.forEach(b => {
+                b.style.opacity = '1';
+                setTimeout(() => {
+                    b.style.transition = `top ${b.dataset.speed}s ease-in-out`;
+                    b.style.top = b.dataset.targetTop;
+                }, 100);
+            });
+
+            setTimeout(() => {
+                document.getElementById('gel-success-msg').style.display = 'block';
+                document.getElementById('btn-power-gel').innerHTML = "<i class='fas fa-check'></i> Proceso Finalizado";
+            }, 5000);
+        }
+
+        function completeBlockB(e) {
+            const r1 = document.getElementById('ref-elec-1').value.trim();
+            const r2 = document.getElementById('ref-elec-2').value.trim();
+            const r3 = document.getElementById('ref-elec-3').value.trim();
+            
+            if(r1.length < 5 || r2.length < 5 || r3.length < 5) {
+                alert("¡Recuerda llenar las preguntas de reflexión antes de cargar el archivo!");
+                document.getElementById('lab-electro-upload').value = ""; // Reset file
+                return;
+            }
+            if(!gelRun) {
+                alert("Debes encender la fuente de poder del simulador primero.");
+                document.getElementById('lab-electro-upload').value = "";
+                return;
+            }
+            if(e.target.files.length > 0) {
+                document.getElementById('upload-electro-success').style.display = 'block';
+                completeSection(3, 4);
+            }
+        }
+
+        // --- FUNCIONES SECCIÓN 4: MICROSCOPÍA ---
+        let microPartsOk = false;
+        function verifyMicroscopeParts() {
+            const p1 = document.getElementById('part-1').value;
+            const p2 = document.getElementById('part-2').value;
+            const p3 = document.getElementById('part-3').value;
+            const p4 = document.getElementById('part-4').value;
+            const p5 = document.getElementById('part-5').value;
+
+            if(p1 === 'ocular' && p2 === 'objetivos' && p3 === 'platina' && p4 === 'macrometrico' && p5 === 'foco') {
+                document.getElementById('micro-parts-error').style.display = 'none';
+                document.getElementById('micro-parts-success').style.display = 'block';
+                microPartsOk = true;
+            } else {
+                document.getElementById('micro-parts-error').style.display = 'block';
+                document.getElementById('micro-parts-success').style.display = 'none';
+                microPartsOk = false;
+            }
+        }
+
+        function completeBlockC(e) {
+            const v1 = document.getElementById('vid-mic-1').value.trim();
+            const v2 = document.getElementById('vid-mic-2').value.trim();
+            const v3 = document.getElementById('vid-mic-3').value.trim();
+            const r1 = document.getElementById('ref-micro-1').value.trim();
+            const r2 = document.getElementById('ref-micro-2').value.trim();
+
+            if(v1.length < 5 || v2.length < 5 || v3.length < 5 || r1.length < 5 || r2.length < 5) {
+                alert("¡Recuerda responder todas las preguntas (del video y de reflexión) antes de cargar el archivo!");
+                document.getElementById('lab-micro-upload').value = ""; 
+                return;
+            }
+            if(!microPartsOk) {
+                alert("Debes resolver la actividad de las partes del microscopio de forma correcta antes de subir el informe.");
+                document.getElementById('lab-micro-upload').value = ""; 
+                return;
+            }
+            if(e.target.files.length > 0) {
+                document.getElementById('upload-micro-success').style.display = 'block';
+                completeSection(4, 5);
+            }
+        }
+
+        // --- FUNCIONES SECCIÓN 5: MICRO:BIT ---
+        let currentTemp = 25;
+        function changeTemp(amount) {
+            currentTemp += amount;
+            document.getElementById('sim-temp').textContent = currentTemp + '°C';
+            updateMicrobitDisplay();
+        }
+
+        function updateMicrobitDisplay() {
+            const leds = document.querySelectorAll('.mb-led');
+            leds.forEach(led => led.classList.remove('on'));
+
+            if (currentTemp > 30) {
+                // Alerta de calor: Cuadro grande lleno
+                leds.forEach(led => led.classList.add('on'));
+            } else {
+                // Normal: Punto central
+                leds[12].classList.add('on');
+            }
+        }
+        updateMicrobitDisplay(); // Inicializar matriz
+
+        function completeBlockD(e) {
+            const r1 = document.getElementById('ref-mb-1').value.trim();
+            const r2 = document.getElementById('ref-mb-2').value.trim();
+            const r3 = document.getElementById('ref-mb-3').value.trim();
+            
+            if(r1.length < 5 || r2.length < 5 || r3.length < 5) {
+                alert("¡Recuerda llenar las preguntas de reflexión antes de cargar el archivo!");
+                document.getElementById('lab-mb-upload').value = ""; // Reset file
+                return;
+            }
+            
+            if(e.target.files.length > 0) {
+                document.getElementById('upload-mb-success').style.display = 'block';
+                completeSection(5, null);
+            }
+        }
+    </script>
+</body>
+</html>

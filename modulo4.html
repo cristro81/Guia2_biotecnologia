@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo 4: ACTIVIDADES DE APROPIACIÓN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ESTILOS GLOBALES ESTANDARIZADOS */
+        :root { --sena-green: #39A900; --sena-blue: #00324D; --sena-orange: #FF6C00; --bg-body: #F4F6F9; --bg-card: #FFFFFF; --text-gray: #59667a; --shadow: 0 4px 20px rgba(0,0,0,0.05); --radius: 12px; --menu-width: 280px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; background-color: var(--bg-body); color: var(--sena-blue); line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; position: relative; }
+        
+        /* FONDO / MARCA DE AGUA */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url("C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_1/imagenes/salon de quimica.png");
+            background-size: cover;
+            background-position: center;
+            opacity: 0.65; /* No muy transparente */
+            z-index: -1;
+        }
+
+        /* HEADER */
+        header { background-color: var(--bg-card); padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 100; }
+        .back-btn { text-decoration: none; color: var(--sena-blue); font-weight: bold; display: flex; align-items: center; gap: 10px; transition: color 0.3s; }
+        .back-btn:hover { color: var(--sena-orange); }
+
+        /* LAYOUT */
+        .main-layout { display: flex; flex: 1; max-width: 1400px; margin: 2rem auto; gap: 2rem; width: 100%; padding: 0 20px; }
+        .sidebar { width: var(--menu-width); background: rgba(255, 255, 255, 0.95); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.5rem; height: fit-content; position: sticky; top: 2rem; }
+        .sidebar h3 { font-family: 'Montserrat'; color: var(--sena-green); margin-bottom: 1.5rem; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        
+        .menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; margin-bottom: 8px; border-radius: 8px; cursor: pointer; transition: all 0.3s; color: var(--text-gray); font-weight: 500; position: relative; }
+        .menu-item:hover { background: #f0fdf4; color: var(--sena-green); }
+        .menu-item.active { background: var(--sena-green); color: white; box-shadow: 0 4px 10px rgba(57, 169, 0, 0.3); }
+        .menu-item.completed::after { content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; right: 15px; color: var(--sena-green); }
+        .menu-item.active.completed::after { color: white; }
+
+        /* CONTENIDO */
+        .content-area { flex: 1; background: rgba(255, 255, 255, 0.95); border-radius: var(--radius); box-shadow: var(--shadow); padding: 2.5rem; min-height: 600px; }
+        .activity-section { display: none; animation: fadeIn 0.5s ease; }
+        .activity-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .section-header h2 { font-family: 'Montserrat'; color: var(--sena-blue); font-size: 1.8rem; margin-bottom: 1rem; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        
+        /* COMPONENTES DE INTERACCIÓN (VIDEO, FORMS, ETC) */
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: var(--radius); background: black; margin-bottom: 1.5rem; box-shadow: var(--shadow);}
+        .video-container iframe, .video-container video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+        .form-group textarea, input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit;}
+        
+        .btn-primary { background: var(--sena-orange); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: background 0.3s; display: inline-flex; align-items: center; gap: 10px; justify-content: center;}
+        .btn-primary:hover { background: #e65100; }
+        .btn-green { background: var(--sena-green); }
+        .btn-green:hover { background: #2e8b00; }
+
+        /* AREA DE CARGA (UPLOAD) */
+        input[type="file"] { display: none; }
+        .upload-label { display: inline-flex; align-items: center; gap: 10px; background: #e8f5e9; color: var(--sena-green); border: 2px dashed var(--sena-green); padding: 15px 30px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s; margin: 15px 0; }
+        .upload-label:hover { background: #c8e6c9; }
+
+        /* ESTILOS ESPECÍFICOS PARA ACTIVIDADES INTERACTIVAS */
+        
+        /* Match Game / Apareamiento */
+        .match-container { display: flex; gap: 20px; justify-content: space-between; margin: 20px 0; }
+        .match-col { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+        .match-card { padding: 15px; border: 2px solid #ddd; border-radius: 8px; cursor: pointer; transition: all 0.2s; text-align: center; background: white; font-weight: 500;}
+        .match-card:hover { border-color: var(--sena-blue); background: #f0f8ff; }
+        .match-card.selected { border-color: var(--sena-orange); background: #fff3e0; transform: scale(1.02); box-shadow: 0 4px 10px rgba(255, 108, 0, 0.2);}
+        .match-card.matched { border-color: var(--sena-green); background: #e8f5e9; pointer-events: none; opacity: 0.6; color: var(--sena-green); }
+        
+        /* Slideshow / Visor de Insectos */
+        .slideshow-container { background: #2c3e50; padding: 30px; border-radius: 20px; box-shadow: inset 0 0 30px rgba(0,0,0,0.8), 0 10px 30px rgba(0,0,0,0.3); border: 4px solid #34495e; text-align: center; color: white; margin-bottom: 20px;}
+        .lens-frame { width: 100%; max-width: 500px; aspect-ratio: 1 / 1; border-radius: 50%; background: #000; margin: 0 auto 20px; border: 15px solid #1a252f; overflow: hidden; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .lens-frame img { width: 100%; height: 100%; object-fit: contain; transition: opacity 0.4s; }
+        .slide-options { display: grid; gap: 10px; grid-template-columns: 1fr 1fr 1fr; margin-top: 20px; }
+        .slide-btn { background: #ecf0f1; color: var(--sena-blue); border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; }
+        .slide-btn:hover { background: var(--sena-orange); color: white; }
+        .slide-btn.correct { background: var(--sena-green); color: white; }
+        .slide-btn.wrong { background: #e74c3c; color: white; }
+        
+        /* Preview de Imagen Cargada */
+        .image-preview-box { width: 100%; max-width: 400px; height: 300px; border: 2px dashed #ccc; border-radius: var(--radius); margin: 0 auto; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #f9f9f9; }
+        .image-preview-box img { max-width: 100%; max-height: 100%; object-fit: contain; display: none; }
+
+        /* Efecto Insignia Esmeralda */
+        .badge-esmeralda { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; }
+        .badge-esmeralda:hover { transform: scale(1.3) rotate(5deg); filter: drop-shadow(0 0 25px rgba(46, 204, 113, 0.8)); }
+
+        /* AREA FINAL */
+        .finish-area { margin-top: 2rem; text-align: center; padding: 2rem; background: #e8f5e9; border: 2px dashed var(--sena-green); border-radius: var(--radius); display: none; }
+
+        @media (max-width: 768px) { .main-layout { flex-direction: column; } .sidebar { width: 100%; position: static; } .match-container { flex-direction: column; } .slide-options { grid-template-columns: 1fr; } }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="header-left">
+            <img src="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/imagenes/SENA_T.png" alt="SENA" style="height: 50px;" onerror="this.src='imagenes/sena.png'">
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Volver al Centro de Comando</a>
+        </div>
+        <img src="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/imagenes/TECNO_V.jpeg" alt="Tecnoacademia" style="height: 50px;" onerror="this.src='imagenes/tecnoacademia.jpeg'">
+    </header>
+
+    <div class="main-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <h3><i class="fas fa-list-ul"></i> Actividades</h3>
+            
+            <div id="menu-1" class="menu-item active" onclick="showSection(1)">
+                <i class="fas fa-play-circle"></i> 1. Introducción y Foro
+            </div>
+            <div id="menu-2" class="menu-item" onclick="showSection(2)">
+                <i class="fas fa-flask"></i> 2. Fermentaciones
+            </div>
+            <div id="menu-3" class="menu-item" onclick="showSection(3)">
+                <i class="fas fa-bug"></i> 3. Mundo Insecto
+            </div>
+            
+            <div id="menu-final" class="finish-area" style="padding: 15px; margin-top: 20px;">
+                <p style="font-size:0.9rem; color:var(--sena-green); font-weight:bold; margin-bottom: 10px;">¡Módulo Completado!</p>
+                <button class="btn-primary" style="width:100%; justify-content:center; font-size:0.8rem;" onclick="finishModule()">Avanzar Siguiente Nivel</button>
+            </div>
+        </aside>
+
+        <main class="content-area">
+            
+            <!-- SECCIÓN 1: INTRODUCCIÓN Y VIDEO FORO -->
+            <section id="sec-1" class="activity-section active">
+                <div class="section-header">
+                    <h2><i class="fas fa-microscope"></i> ACTIVIDADES DE APROPIACIÓN</h2>
+                    <p style="color: var(--text-gray); margin-bottom: 20px;"><strong>Tiempo estimado:</strong> 16 horas presenciales y 6 de trabajo autónomo.</p>
+                </div>
+                
+                <div style="display: flex; gap: 30px; margin-bottom: 30px; align-items: flex-start; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 300px; text-align: justify;">
+                        <p style="margin-bottom: 15px;">Empezaremos la revisión de conceptos y la ejecución de actividades que te llevaran a otro nivel en la comprensión de la biotecnología y sus aplicaciones, presta atención y toma nota de las explicaciones de tu facilitador y apoya tu equipo de trabajo en cada una de las actividades.</p>
+                        
+                        <!-- Mensaje de Bioseguridad -->
+                        <div style="background: #fff3e0; border-left: 5px solid var(--sena-orange); padding: 15px; border-radius: 4px; margin-top: 20px;">
+                            <h4 style="color: var(--sena-orange); margin-bottom: 10px;"><i class="fas fa-exclamation-triangle"></i> ¡Apreciado MAKER!</h4>
+                            <p style="font-size: 0.95rem;">Recuerda aplicar el protocolo de limpieza y desinfección establecido en el Manual de Bioseguridad de la Tecnoacademia, el cual será socializado por tu facilitador, al igual que cumplir el protocolo de bioseguridad contenido en los anexos de esta guía, así aportarás al desarrollo seguro de las formaciones.</p>
+                            
+                            <a href="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_1/documentos/MANUAL DE BIOSEGURIDAD LABORATORIOS TALLERES TECNOACADEMIA MANIZALES V2.0 (1).pdf" target="_blank" class="btn-primary" style="margin-top: 15px; font-size: 0.85rem; padding: 8px 15px;">
+                                <i class="fas fa-file-pdf"></i> Manual de Bioseguridad
+                            </a>
+                        </div>
+                        
+                        <!-- RECOMPENSA E INSIGNIA -->
+                        <div style="margin-top: 20px; display: flex; align-items: center; gap: 15px; background: #e8f5e9; padding: 15px; border-radius: 8px; border: 1px solid var(--sena-green);">
+                            <img src="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/imagenes/03 - Insignias MOHS-Esmeralda.png" alt="Insignia Esmeralda" style="width: 70px; height: auto;" class="badge-esmeralda">
+                            <div>
+                                <h4 style="color: var(--sena-green); margin-bottom: 5px; font-family: 'Montserrat';"><i class="fas fa-medal"></i> Recompensa del Módulo</h4>
+                                <p style="font-size: 0.95rem; margin: 0; color: var(--text-gray);">Al completar todas las actividades de esta sección obtendrás la <strong>Insignia Esmeralda</strong>.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 15px; align-items: center;">
+                        <img src="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_1/imagenes/Dr. Patarroyo.png" alt="Dr. Patarroyo" style="width: 150px; border-radius: 12px; box-shadow: var(--shadow);">
+                        <img src="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_1/imagenes/Maker Mujer CIENCIAS.png" alt="Maker Mujer Ciencias" style="width: 150px; border-radius: 12px; box-shadow: var(--shadow);">
+                    </div>
+                </div>
+
+                <hr style="border: 0; height: 1px; background: #eee; margin: 30px 0;">
+
+                <h3 style="color: var(--sena-blue); margin-bottom: 20px;"><i class="fas fa-video"></i> BLOQUE A: FERMENTACIONES - VIDEO FORO</h3>
+                <h4 style="color: var(--sena-green); margin-bottom: 15px;">LA BIOLOGÍA EN LA BIOTECNOLOGÍA</h4>
+
+                <div class="video-container">
+                    <video controls>
+                        <source src="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/videos/YTDown.com_YouTube_Que-es-la-fermentacion-Como-se-elabora-e_Media_nuFbKeCHdco_001_720p.mp4" type="video/mp4">
+                        Tu navegador no soporta el elemento de video.
+                    </video>
+                </div>
+
+                <div class="form-group" style="background: #f4f6f9; padding: 20px; border-radius: var(--radius);">
+                    <label for="foro-1">1. Según tus presaberes y el video, ¿Qué entiendes por el proceso de fermentación y qué seres vivos participan en él?</label>
+                    <textarea id="foro-1" rows="3" placeholder="Escribe tu respuesta aquí..."></textarea>
+                </div>
+                <div class="form-group" style="background: #f4f6f9; padding: 20px; border-radius: var(--radius);">
+                    <label for="foro-2">2. ¿Por qué crees que la fermentación es un proceso vital y tan utilizado en el campo de la Biotecnología moderna y tradicional?</label>
+                    <textarea id="foro-2" rows="3" placeholder="Escribe tu respuesta aquí..."></textarea>
+                </div>
+                
+                <button class="btn-primary" onclick="submitForo()"><i class="fas fa-paper-plane"></i> Enviar Respuestas y Avanzar</button>
+                <p id="foro-success" style="color: var(--sena-green); font-weight: bold; margin-top: 10px; display: none;">¡Respuestas enviadas correctamente! Sección superada.</p>
+            </section>
+
+            <!-- SECCIÓN 2: FERMENTACIONES -->
+            <section id="sec-2" class="activity-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-flask"></i> BLOQUE A: FERMENTACIONES (CONCEPTOS)</h2>
+                </div>
+
+                <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
+                    <a href="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/documentos/G2_Anexo 3.pdf" target="_blank" class="btn-primary btn-green" style="font-size: 0.85rem;"><i class="fas fa-file-pdf"></i> G2_Anexo 3</a>
+                    <a href="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/documentos/G2_Anexo 4.pdf" target="_blank" class="btn-primary btn-green" style="font-size: 0.85rem;"><i class="fas fa-file-pdf"></i> G2_Anexo 4</a>
+                    <a href="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/documentos/G2_Anexo 4.1.pdf" target="_blank" class="btn-primary btn-green" style="font-size: 0.85rem;"><i class="fas fa-file-pdf"></i> G2_Anexo 4.1</a>
+                </div>
+
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <img src="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/imagenes/fermentaciones.jpg" alt="Fermentaciones" style="width: 100%; max-width: 600px; border-radius: var(--radius); box-shadow: var(--shadow);">
+                </div>
+
+                <p style="text-align: justify; margin-bottom: 20px; background: #fff; padding: 20px; border-radius: var(--radius); border-left: 4px solid var(--sena-blue); box-shadow: var(--shadow);">
+                    La fermentación es un proceso metabólico clave en la biotecnología donde microorganismos como bacterias y levaduras transforman sustancias orgánicas en ausencia de oxígeno (proceso anaeróbico). <strong>La fermentación láctica</strong>, impulsada generalmente por bacterias (como los lactobacilos), es fundamental para producir yogur, quesos y conservar vegetales. Por otro lado, <strong>la fermentación alcohólica</strong>, realizada principalmente por levaduras, convierte los azúcares en alcohol y dióxido de carbono, siendo la base para la elaboración de pan, vino y cerveza.
+                </p>
+
+                <h3 style="color: var(--sena-blue); margin: 30px 0 15px; text-align: center;"><i class="fas fa-random"></i> Reto: Conecta los Conceptos</h3>
+                <p style="text-align: center; color: var(--text-gray); margin-bottom: 20px;">Haz clic en un término de la izquierda y luego en su descripción correcta a la derecha.</p>
+
+                <div class="match-container">
+                    <div class="match-col" id="col-words-fer">
+                        <div class="match-card word-card-fer" data-match="1" onclick="selectCardFer(this, 'word')">Fermentación Láctica</div>
+                        <div class="match-card word-card-fer" data-match="2" onclick="selectCardFer(this, 'word')">Fermentación Alcohólica</div>
+                        <div class="match-card word-card-fer" data-match="3" onclick="selectCardFer(this, 'word')">Anaeróbico</div>
+                        <div class="match-card word-card-fer" data-match="4" onclick="selectCardFer(this, 'word')">Microorganismos implicados</div>
+                    </div>
+                    <div class="match-col" id="col-defs-fer">
+                        <div class="match-card def-card-fer" data-match="3" onclick="selectCardFer(this, 'def')">Proceso que se realiza en ausencia de oxígeno.</div>
+                        <div class="match-card def-card-fer" data-match="1" onclick="selectCardFer(this, 'def')">Produce ácido láctico, usado para crear yogur y quesos.</div>
+                        <div class="match-card def-card-fer" data-match="4" onclick="selectCardFer(this, 'def')">Bacterias y levaduras responsables de la biotransformación.</div>
+                        <div class="match-card def-card-fer" data-match="2" onclick="selectCardFer(this, 'def')">Produce etanol y CO2, usado en la elaboración de pan y vino.</div>
+                    </div>
+                </div>
+                <p id="match-fer-success" style="color: var(--sena-green); font-weight: bold; text-align: center; display: none; margin-top: 10px;"><i class="fas fa-check-circle"></i> ¡Conceptos emparejados correctamente!</p>
+
+                <hr style="border: 0; height: 1px; background: #eee; margin: 30px 0;">
+
+                <div style="text-align: center; padding: 20px; background: #e8f5e9; border-radius: var(--radius); border: 2px dashed var(--sena-green);">
+                    <h3 style="color: var(--sena-green);"><i class="fas fa-file-upload"></i> Carga de Informe de Laboratorio</h3>
+                    <p style="color: var(--text-gray); margin-top: 10px;">Sube el informe o evidencia de la práctica de fermentación (PDF, Word, o Imagen).</p>
+                    
+                    <label class="upload-label" for="lab-upload">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 1.5rem;"></i> Subir Informe
+                    </label>
+                    <input type="file" id="lab-upload" onchange="handleLabUpload(event)">
+                    <p id="lab-upload-success" style="color: var(--sena-green); font-weight: bold; margin-top: 10px; display: none;"><i class="fas fa-check"></i> ¡Informe cargado! Sección completada.</p>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 3: MUNDO INSECTO -->
+            <section id="sec-3" class="activity-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-bug"></i> BLOQUE B: EL ESTEREOSCOPIO Y EL MUNDO DE LOS INSECTOS</h2>
+                </div>
+
+                <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
+                    <div style="flex: 1; min-width: 300px;">
+                        <h4 style="color: var(--sena-blue); margin-bottom: 15px;">Importancia de los Insectos</h4>
+                        <p style="text-align: justify;">Los insectos no solo son el grupo más diverso de animales en la Tierra, sino que tienen aplicaciones asombrosas en la ciencia. En la <strong>biotecnología</strong>, sus enzimas y compuestos se estudian para crear nuevos biomateriales, fármacos y pesticidas ecológicos. En la <strong>medicina forense</strong> (entomología forense), el análisis de los insectos presentes en una escena ayuda a determinar el tiempo y las circunstancias de un suceso. Para estudiarlos a detalle, se utilizan herramientas vitales como el estereoscopio. Conoceremos los principales órdenes: Coleóptera, Díptera, Himenóptera, Lepidóptera, Ortóptera y Odonata.</p>
+                        
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
+                            <a href="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/documentos/G2_Anexo 6.pdf" target="_blank" class="btn-primary" style="font-size: 0.8rem; background: #455a64;"><i class="fas fa-book"></i> Anexo 6</a>
+                            <a href="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/documentos/G2_ANEXO7.pdf" target="_blank" class="btn-primary" style="font-size: 0.8rem; background: #455a64;"><i class="fas fa-book"></i> Anexo 7</a>
+                            <a href="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/documentos/G2_Anexo 8.pdf" target="_blank" class="btn-primary" style="font-size: 0.8rem; background: #455a64;"><i class="fas fa-book"></i> Anexo 8</a>
+                        </div>
+                    </div>
+                    <div style="text-align: center;">
+                        <img src="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/imagenes/INSECTOS.png" alt="Insectos" style="max-width: 250px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2));">
+                    </div>
+                </div>
+
+                <!-- Insignia Box -->
+                <div style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border: 2px solid #2ecc71; padding: 20px; border-radius: var(--radius); display: flex; align-items: center; gap: 20px; margin-bottom: 30px;">
+                    <img src="C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/imagenes/03 - Insignias MOHS-Esmeralda.png" alt="Insignia Esmeralda" class="badge-esmeralda" style="width: 90px;">
+                    <div>
+                        <h3 style="color: #27ae60; margin-bottom: 5px;"><i class="fas fa-gem"></i> ¡Tu próximo gran logro!</h3>
+                        <p style="margin: 0; color: #2c3e50;">Completa la actividad del visor de insectos y carga la imagen de tu práctica para obtener la espectacular <strong>Insignia Esmeralda</strong> de esta ruta.</p>
+                    </div>
+                </div>
+
+                <!-- Visor Interactivo (Slideshow) -->
+                <h3 style="color: var(--sena-blue); text-align: center; margin-bottom: 15px;">Elige la Opción Correcta</h3>
+                <div class="slideshow-container" id="insect-slideshow">
+                    <h4 id="slide-title" style="margin-bottom: 15px; color: #f1c40f;">¿A qué orden pertenece este insecto?</h4>
+                    <div class="lens-frame">
+                        <img id="slide-img" src="" alt="Insecto a identificar">
+                    </div>
+                    <p id="slide-desc" style="font-size: 1.1rem; margin-bottom: 20px; min-height: 50px;">Cargando descripción...</p>
+                    
+                    <div class="slide-options" id="slide-options">
+                        <!-- Botones generados por JS -->
+                    </div>
+                    <p id="slide-feedback" style="margin-top: 15px; font-weight: bold; font-size: 1.2rem;"></p>
+                </div>
+
+                <!-- Carga de Imagen Insecto -->
+                <div style="text-align: center; padding: 30px; background: white; border-radius: var(--radius); box-shadow: var(--shadow); margin-top: 30px;">
+                    <h3 style="color: var(--sena-blue);"><i class="fas fa-camera"></i> Carga la imagen de tu insecto aquí</h3>
+                    <p style="color: var(--text-gray); margin: 10px 0 20px;">Sube una fotografía de tu observación en el estereoscopio.</p>
+                    
+                    <label class="upload-label" for="insect-upload">
+                        <i class="fas fa-image" style="font-size: 1.5rem;"></i> Subir Fotografía
+                    </label>
+                    <input type="file" id="insect-upload" accept="image/*" onchange="previewInsectImage(event)">
+                    
+                    <div class="image-preview-box" style="margin-top: 20px;">
+                        <span id="preview-placeholder" style="color: #aaa;"><i class="fas fa-eye"></i> Previsualización</span>
+                        <img id="insect-preview" src="" alt="Preview">
+                    </div>
+                    <p id="insect-upload-success" style="color: var(--sena-green); font-weight: bold; margin-top: 15px; display: none;"><i class="fas fa-check-circle"></i> ¡Evidencia cargada! Has completado el Módulo 4.</p>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // LÓGICA BASE OBLIGATORIA
+        // [0] = Foro, [1] = Match Fermentacion, [2] = Upload Lab, [3] = Slideshow Insectos, [4] = Upload Insecto
+        let progress = [false, false, false, false, false]; 
+        
+        function showSection(id) {
+            document.querySelectorAll('.menu-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('menu-' + id).classList.add('active');
+            document.querySelectorAll('.activity-section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById('sec-' + id).classList.add('active');
+        }
+
+        function checkModuleCompletion() {
+            // Evaluamos las condiciones lógicas para mostrar el chulo en el menú izquierdo
+            if(progress[0]) document.getElementById('menu-1').classList.add('completed');
+            if(progress[1] && progress[2]) document.getElementById('menu-2').classList.add('completed');
+            if(progress[3] && progress[4]) document.getElementById('menu-3').classList.add('completed');
+
+            // Si todas son true, mostramos el botón final
+            if (progress.every(Boolean)) {
+                document.getElementById('menu-final').style.display = 'block';
+            }
+        }
+
+        function finishModule() {
+            const currentModule = 4; // Número del módulo actual ajustado
+            const nextModule = currentModule + 1;
+            
+            const savedState = localStorage.getItem('vexIqState');
+            if (savedState) {
+                const state = JSON.parse(savedState);
+                if (!state.completedModules.includes(currentModule)) state.completedModules.push(currentModule);
+                if (!state.unlockedModules.includes(nextModule)) state.unlockedModules.push(nextModule);
+                localStorage.setItem('vexIqState', JSON.stringify(state));
+                alert("¡Módulo Finalizado! Has ganado la Insignia Esmeralda. Progreso Guardado.");
+                window.location.href = 'index.html';
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+
+        // --- FUNCIONES ESPECÍFICAS DE LAS ACTIVIDADES ---
+
+        // 1. Validar Video Foro
+        function submitForo() {
+            const r1 = document.getElementById('foro-1').value.trim();
+            const r2 = document.getElementById('foro-2').value.trim();
+            if(r1.length < 5 || r2.length < 5) {
+                alert("Por favor, elabora un poco más tus respuestas en el foro.");
+                return;
+            }
+            document.getElementById('foro-success').style.display = 'block';
+            progress[0] = true;
+            checkModuleCompletion();
+        }
+
+        // 2. Juego de Match (Fermentaciones)
+        let selWordFer = null;
+        let selDefFer = null;
+        let matchesFoundFer = 0;
+
+        function selectCardFer(card, type) {
+            if (card.classList.contains('matched')) return;
+
+            if (type === 'word') {
+                if (selWordFer) selWordFer.classList.remove('selected');
+                selWordFer = card;
+                selWordFer.classList.add('selected');
+            } else {
+                if (selDefFer) selDefFer.classList.remove('selected');
+                selDefFer = card;
+                selDefFer.classList.add('selected');
+            }
+
+            if (selWordFer && selDefFer) {
+                if (selWordFer.dataset.match === selDefFer.dataset.match) {
+                    selWordFer.classList.remove('selected');
+                    selDefFer.classList.remove('selected');
+                    selWordFer.classList.add('matched');
+                    selDefFer.classList.add('matched');
+                    matchesFoundFer++;
+                    selWordFer = null;
+                    selDefFer = null;
+
+                    if (matchesFoundFer === 4) {
+                        document.getElementById('match-fer-success').style.display = 'block';
+                        progress[1] = true;
+                        checkModuleCompletion();
+                    }
+                } else {
+                    setTimeout(() => {
+                        selWordFer.classList.remove('selected');
+                        selDefFer.classList.remove('selected');
+                        selWordFer = null;
+                        selDefFer = null;
+                    }, 400);
+                }
+            }
+        }
+
+        // 3. Carga de Lab Report
+        function handleLabUpload(e) {
+            if(e.target.files.length > 0) {
+                document.getElementById('lab-upload-success').style.display = 'block';
+                progress[2] = true;
+                checkModuleCompletion();
+            }
+        }
+
+        // 4. Slideshow Visor de Insectos
+        const insectSlides = [
+            {
+                img: "C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/imagenes/Gemini_Generated_Image_5j92e45j92e45j92.png",
+                desc: "Poseen un exoesqueleto muy duro y sus alas delanteras forman un caparazón protector (élitros).",
+                options: ["Coleóptera", "Lepidóptera", "Odonata"],
+                correct: 0
+            },
+            {
+                img: "C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/imagenes/Gemini_Generated_Image_mzzyxzmzzyxzmzzy.png",
+                desc: "Solo tienen un par de alas funcionales, muy usados en entomología forense para fechar sucesos.",
+                options: ["Himenóptera", "Díptera", "Ortóptera"],
+                correct: 1
+            },
+            {
+                img: "C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/imagenes/Gemini_Generated_Image_x1ovaax1ovaax1ov.png",
+                desc: "Insectos sociales vitales para la polinización. Sus productos (miel, propóleo) se usan en biotecnología.",
+                options: ["Lepidóptera", "Coleóptera", "Himenóptera"],
+                correct: 2
+            },
+            {
+                img: "C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/imagenes/Gemini_Generated_Image_xybjdwxybjdwxybj.png",
+                desc: "Tienen alas cubiertas de escamas coloridas. Pasan por una metamorfosis completa.",
+                options: ["Lepidóptera", "Odonata", "Ortóptera"],
+                correct: 0
+            },
+            {
+                img: "C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/imagenes/Gemini_Generated_Image_yjkdh8yjkdh8yjkd.png",
+                desc: "Conocidos por sus fuertes patas traseras adaptadas para el salto y producir sonido (estridulación).",
+                options: ["Díptera", "Ortóptera", "Coleóptera"],
+                correct: 1
+            },
+            {
+                img: "C:/Guias_Interactivas_Aplicaciones_Desarrollo_Biotecnología/Guia_2/imagenes/Gemini_Generated_Image_yyn6ufyyn6ufyyn6.png",
+                desc: "Excelentes voladores depredadores, con ojos compuestos muy grandes y cuerpo alargado.",
+                options: ["Odonata", "Himenóptera", "Díptera"],
+                correct: 0
+            }
+        ];
+
+        let currentSlide = 0;
+
+        function renderSlide() {
+            if(currentSlide >= insectSlides.length) {
+                // Terminado
+                document.getElementById('slide-title').textContent = "¡Análisis Completado!";
+                document.getElementById('slide-title').style.color = "#2ecc71";
+                document.getElementById('slide-img').style.opacity = "0.2";
+                document.getElementById('slide-desc').textContent = "Has identificado correctamente todos los órdenes de insectos.";
+                document.getElementById('slide-options').innerHTML = "";
+                document.getElementById('slide-feedback').textContent = "";
+                
+                progress[3] = true;
+                checkModuleCompletion();
+                return;
+            }
+
+            const data = insectSlides[currentSlide];
+            document.getElementById('slide-img').src = data.img;
+            document.getElementById('slide-img').style.opacity = "1";
+            document.getElementById('slide-desc').textContent = data.desc;
+            
+            const optsContainer = document.getElementById('slide-options');
+            optsContainer.innerHTML = "";
+            document.getElementById('slide-feedback').textContent = "";
+
+            data.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'slide-btn';
+                btn.textContent = opt;
+                btn.onclick = () => checkSlideAnswer(btn, idx, data.correct);
+                optsContainer.appendChild(btn);
+            });
+        }
+
+        function checkSlideAnswer(btn, selected, correct) {
+            // Bloquear clics múltiples
+            const allBtns = document.querySelectorAll('.slide-btn');
+            allBtns.forEach(b => b.disabled = true);
+
+            const feedback = document.getElementById('slide-feedback');
+
+            if(selected === correct) {
+                btn.classList.add('correct');
+                feedback.style.color = "#2ecc71";
+                feedback.textContent = "¡Correcto!";
+                setTimeout(() => {
+                    currentSlide++;
+                    renderSlide();
+                }, 1200);
+            } else {
+                btn.classList.add('wrong');
+                feedback.style.color = "#e74c3c";
+                feedback.textContent = "Incorrecto. Intenta de nuevo.";
+                setTimeout(() => {
+                    btn.classList.remove('wrong');
+                    feedback.textContent = "";
+                    allBtns.forEach(b => b.disabled = false);
+                }, 1200);
+            }
+        }
+
+        // 5. Carga de Imagen de Insecto y Preview
+        function previewInsectImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('insect-preview');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    document.getElementById('preview-placeholder').style.display = 'none';
+                    
+                    document.getElementById('insect-upload-success').style.display = 'block';
+                    progress[4] = true;
+                    checkModuleCompletion();
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Iniciar slideshow al cargar
+        window.onload = () => {
+            renderSlide();
+        };
+    </script>
+</body>
+</html>
